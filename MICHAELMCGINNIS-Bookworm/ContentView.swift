@@ -24,6 +24,10 @@ struct ContentView: View {
         try? moc.save()
     }
     
+    //random additions
+    @State private var showingEmojiEdit = false
+    //@ObservedObject var emojiList: Emojis
+    @StateObject var emojiList = Emojis()
     var body: some View {
         NavigationView {
             List {
@@ -32,7 +36,7 @@ struct ContentView: View {
                         DetailView(book: book)
                     } label: {
                         HStack {
-                            EmojiRatingView(rating: book.rating)
+                            EmojiRatingView(rating: book.rating, emojiList: emojiList)
                                 .font(.largeTitle)
 
                             VStack(alignment: .leading) {
@@ -47,8 +51,16 @@ struct ContentView: View {
                 }
                 .onDelete(perform: deleteBooks)
             }
+            .onAppear(perform: emojiList.decode)
                 .navigationTitle("Bookworm")
                 .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading){
+                        Button{
+                            showingEmojiEdit = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                    }
                     ToolbarItem(placement: .navigationBarLeading) {
                         EditButton()
                     }
@@ -62,6 +74,9 @@ struct ContentView: View {
                 }
                 .sheet(isPresented: $showingAddScreen) {
                     AddBookView()
+                }
+                .sheet(isPresented: $showingEmojiEdit){
+                    EmojiEditView(emojiList: emojiList)
                 }
         }
     }
